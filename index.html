@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>ANIME TV</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Janda Manatee',;
+      display: flex;
+      background-color: #111;
+      color: white;
+    }
+    nav {
+      width: 250px;
+      background: url('https://w0.peakpx.com/wallpaper/849/149/HD-wallpaper-fadedredblack-black-blood-chill-colors-fade-gradient-minimal-red-simple.jpg') no-repeat center/cover;
+      color: rgb(255, 255, 255);
+      padding: 10px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+    }
+    nav h2 {
+      font-size: 22px;
+      text-shadow: 2px 2px 4px black;
+      margin-top: 0;
+    }
+    nav ul {
+      list-style: none;
+      padding: 0;
+    }
+    nav li {
+      padding: 8px;
+      margin: 5px 0;
+      background: rgba(255, 140, 0, 0.8);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.3s;
+    }
+    nav li:hover {
+      background: #ff6600;
+      transform: scale(1.05);
+    }
+    main {
+      flex: 1;
+      padding: 20px;
+      background: linear-gradient(to bottom, #222, #000);
+    }
+    h1 {
+      font-size: 28px;
+      color: #ffcc00;
+      text-shadow: 2px 2px 4px black;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      border: 2px solid #ff6600;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 10px;
+      display: inline-block;
+      width: 200px;
+      vertical-align: top;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    .card img {
+      width: 100%;
+      border-radius: 5px;
+      border: 2px solid #ffcc00;
+    }
+    .card h3 {
+      font-size: 16px;
+      margin: 5px 0;
+      color: #ffcc00;
+    }
+    button {
+      background: #ff6600;
+      border: none;
+      padding: 5px 10px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background: #ffcc00;
+      color: black;
+      transform: scale(1.05);
+    }
+    video {
+      width: 100%;
+      margin-top: 20px;
+      border: 3px solid #ffcc00;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #ff6600;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <h2>Categorias</h2>
+    <ul id="menu"></ul>
+  </nav>
+
+  <main>
+    <center><h1 id="categoria-titulo">Selecione uma categoria</h1></center>
+    <video id="player" controls></video>
+    <div id="lista"></div>
+    
+  </main>
+
+  <script>
+  let data = {};
+  let origemCategorias = {}; // Guarda se a categoria veio de Naruto ou Filmes
+  let currentCategory = "";
+
+  Promise.all([
+    fetch("Animes.json").then(res => res.json()),
+    fetch("Filmes.json").then(res => res.json())
+  ])
+  .then(([narutoData, filmesData]) => {
+    // Adiciona Naruto
+    for (let cat in narutoData) {
+      if (!data[cat]) data[cat] = [];
+      data[cat] = data[cat].concat(narutoData[cat]);
+      origemCategorias[cat] = "naruto";
+    }
+    // Adiciona Filmes
+    for (let cat in filmesData) {
+      if (!data[cat]) data[cat] = [];
+      data[cat] = data[cat].concat(filmesData[cat]);
+      origemCategorias[cat] = "filmes";
+    }
+
+    criarMenu();
+  });
+
+  function criarMenu() {
+    const menu = document.getElementById("menu");
+    menu.innerHTML = "";
+
+    // Agrupa categorias por origem
+    const narutoCats = Object.keys(origemCategorias).filter(cat => origemCategorias[cat] === "naruto");
+    const filmesCats = Object.keys(origemCategorias).filter(cat => origemCategorias[cat] === "filmes");
+
+    // Cria seção Naruto
+    if (narutoCats.length > 0) {
+      const tituloNaruto = document.createElement("h3");
+      tituloNaruto.textContent = "📺 ANIMES";
+      tituloNaruto.style.color = "#ffcc00";
+      menu.appendChild(tituloNaruto);
+      narutoCats.forEach(cat => addMenuItem(menu, cat, "#ff6600"));
+    }
+
+    // Cria seção Filmes
+    if (filmesCats.length > 0) {
+      const tituloFilmes = document.createElement("h3");
+      tituloFilmes.textContent = "🎬 Filmes";
+      tituloFilmes.style.color = "#00ccff";
+      menu.appendChild(tituloFilmes);
+      filmesCats.forEach(cat => addMenuItem(menu, cat, "#0099cc"));
+    }
+  }
+
+  function addMenuItem(menu, cat, corFundo) {
+    const li = document.createElement("li");
+    li.textContent = cat;
+    li.style.background = corFundo;
+    li.style.marginBottom = "5px";
+    li.style.padding = "8px";
+    li.style.borderRadius = "5px";
+    li.style.cursor = "pointer";
+    li.onclick = () => mostrarCategoria(cat);
+    li.onmouseover = () => li.style.filter = "brightness(1.2)";
+    li.onmouseout = () => li.style.filter = "brightness(1)";
+    menu.appendChild(li);
+  }
+
+  function mostrarCategoria(cat) {
+    currentCategory = cat;
+    document.getElementById("categoria-titulo").textContent = cat;
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
+    data[cat].forEach(item => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${item.logo}" alt="${item.name}">
+        <h3>${item.name}</h3>
+        <button onclick="playVideo('${item.url}')">Assistir</button>
+      `;
+      lista.appendChild(card);
+    });
+  }
+
+  function playVideo(url) {
+    const player = document.getElementById("player");
+    player.src = url;
+    player.play();
+  }
+</script>
+
+
+
+</body>
+</html>
