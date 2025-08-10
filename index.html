@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>ANIME TV</title>
+  <title>🎬ANIME TV</title>
   <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
   <style>
     body {
@@ -110,24 +110,25 @@
     <center><h1 id="categoria-titulo">Selecione uma categoria</h1></center>
     <video id="player" controls></video>
     <div id="lista"></div>
-    
   </main>
 
   <script>
   let data = {};
-  let origemCategorias = {}; // Guarda se a categoria veio de Naruto ou Filmes
+  let origemCategorias = {}; // "animes" | "filmes" | "series" | "desenhos"
   let currentCategory = "";
 
   Promise.all([
-    fetch("Animes.json").then(res => res.json()),
-    fetch("Filmes.json").then(res => res.json())
+    fetch("Animes.json").then(res => res.json()).catch(()=> ({})),
+    fetch("Filmes.json").then(res => res.json()).catch(()=> ({})),
+    fetch("series.json").then(res => res.json()).catch(()=> ({})),
+    fetch("Desenhos.json").then(res => res.json()).catch(()=> ({}))
   ])
-  .then(([narutoData, filmesData]) => {
-    // Adiciona Naruto
-    for (let cat in narutoData) {
+  .then(([animesData, filmesData, seriesData, desenhosData]) => {
+    // Adiciona Animes
+    for (let cat in animesData) {
       if (!data[cat]) data[cat] = [];
-      data[cat] = data[cat].concat(narutoData[cat]);
-      origemCategorias[cat] = "naruto";
+      data[cat] = data[cat].concat(animesData[cat]);
+      origemCategorias[cat] = "animes";
     }
     // Adiciona Filmes
     for (let cat in filmesData) {
@@ -135,7 +136,23 @@
       data[cat] = data[cat].concat(filmesData[cat]);
       origemCategorias[cat] = "filmes";
     }
+    // Adiciona Séries
+    for (let cat in seriesData) {
+      if (!data[cat]) data[cat] = [];
+      data[cat] = data[cat].concat(seriesData[cat]);
+      origemCategorias[cat] = "series";
+    }
+    // Adiciona Desenhos
+    for (let cat in desenhosData) {
+      if (!data[cat]) data[cat] = [];
+      data[cat] = data[cat].concat(desenhosData[cat]);
+      origemCategorias[cat] = "desenhos";
+    }
 
+    criarMenu();
+  })
+  .catch(err => {
+    console.error("Erro ao carregar arquivos JSON:", err);
     criarMenu();
   });
 
@@ -143,26 +160,42 @@
     const menu = document.getElementById("menu");
     menu.innerHTML = "";
 
-    // Agrupa categorias por origem
-    const narutoCats = Object.keys(origemCategorias).filter(cat => origemCategorias[cat] === "naruto");
+    const animesCats = Object.keys(origemCategorias).filter(cat => origemCategorias[cat] === "animes");
     const filmesCats = Object.keys(origemCategorias).filter(cat => origemCategorias[cat] === "filmes");
+    const seriesCats = Object.keys(origemCategorias).filter(cat => origemCategorias[cat] === "series");
+    const desenhosCats = Object.keys(origemCategorias).filter(cat => origemCategorias[cat] === "desenhos");
 
-    // Cria seção Naruto
-    if (narutoCats.length > 0) {
-      const tituloNaruto = document.createElement("h3");
-      tituloNaruto.textContent = "📺 ANIMES";
-      tituloNaruto.style.color = "#ffcc00";
-      menu.appendChild(tituloNaruto);
-      narutoCats.forEach(cat => addMenuItem(menu, cat, "#ff6600"));
+    // Animes
+    if (animesCats.length > 0) {
+      const titulo = document.createElement("h3");
+      titulo.textContent = "📺 Animes";
+      titulo.style.color = "#ffcc00";
+      menu.appendChild(titulo);
+      animesCats.forEach(cat => addMenuItem(menu, cat, "#ff6600"));
     }
-
-    // Cria seção Filmes
+    // Filmes
     if (filmesCats.length > 0) {
-      const tituloFilmes = document.createElement("h3");
-      tituloFilmes.textContent = "🎬 Filmes";
-      tituloFilmes.style.color = "#00ccff";
-      menu.appendChild(tituloFilmes);
+      const titulo = document.createElement("h3");
+      titulo.textContent = "🎬 Filmes";
+      titulo.style.color = "#00ccff";
+      menu.appendChild(titulo);
       filmesCats.forEach(cat => addMenuItem(menu, cat, "#0099cc"));
+    }
+    // Séries
+    if (seriesCats.length > 0) {
+      const titulo = document.createElement("h3");
+      titulo.textContent = "📽️ Séries";
+      titulo.style.color = "#66ff66";
+      menu.appendChild(titulo);
+      seriesCats.forEach(cat => addMenuItem(menu, cat, "#33cc33"));
+    }
+    // Desenhos
+    if (desenhosCats.length > 0) {
+      const titulo = document.createElement("h3");
+      titulo.textContent = "🧸 Desenhos";
+      titulo.style.color = "#ffd166";
+      menu.appendChild(titulo);
+      desenhosCats.forEach(cat => addMenuItem(menu, cat, "#ffb703"));
     }
   }
 
@@ -185,7 +218,7 @@
     document.getElementById("categoria-titulo").textContent = cat;
     const lista = document.getElementById("lista");
     lista.innerHTML = "";
-    data[cat].forEach(item => {
+    (data[cat] || []).forEach(item => {
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
@@ -202,9 +235,7 @@
     player.src = url;
     player.play();
   }
-</script>
-
-
+  </script>
 
 </body>
 </html>
