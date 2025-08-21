@@ -7,27 +7,68 @@
   <style>
     body {
       margin: 0;
-      font-family: 'Janda Manatee',;
+      font-family: 'Janda Manatee', sans-serif;
       display: flex;
       background-color: #111;
       color: white;
+      transition: margin-left 0.4s ease; /* Adicionado para animar o conteúdo principal */
     }
+
+    /* --- BOTÃO DE TOGGLE --- */
+    #toggle-nav {
+      /* Posicionamento Fixo */
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 1000; /* Garante que ele fique acima de outros elementos */
+
+      /* Estilo */
+      background: #ff6600;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    #toggle-nav:hover {
+        background: #ffcc00;
+        color: black;
+        transform: scale(1.05);
+    }
+
+    /* --- NAVEGAÇÃO LATERAL (NAV) --- */
     nav {
       width: 250px;
       background: url('https://w0.peakpx.com/wallpaper/849/149/HD-wallpaper-fadedredblack-black-blood-chill-colors-fade-gradient-minimal-red-simple.jpg') no-repeat center/cover;
       color: rgb(255, 255, 255);
-      padding: 10px;
+      padding: 20px;
       box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+      transition: transform 0.4s ease; /* Mudei para transform para melhor performance */
+      position: fixed;
+      height: 100%;
+      overflow-x: hidden;
+      transform: translateX(0); /* Estado inicial: visível */
     }
+
+    nav.recolhido {
+      transform: translateX(-100%); /* Move a NAV para fora da tela */
+    }
+
     nav h2 {
       font-size: 22px;
       text-shadow: 2px 2px 4px black;
       margin-top: 0;
+      white-space: nowrap;
     }
+
     nav ul {
       list-style: none;
       padding: 0;
     }
+
     nav li {
       padding: 8px;
       margin: 5px 0;
@@ -35,16 +76,28 @@
       border-radius: 5px;
       cursor: pointer;
       transition: transform 0.2s, background 0.3s;
+      white-space: nowrap;
     }
+
     nav li:hover {
       background: #ff6600;
       transform: scale(1.05);
     }
+
+    /* --- CONTEÚDO PRINCIPAL (MAIN) --- */
     main {
       flex: 1;
       padding: 20px;
       background: linear-gradient(to bottom, #222, #000);
+      margin-left: 290px; /* Espaço para a NAV (250px de largura + 40px de padding) */
+      transition: margin-left 0.4s ease;
     }
+
+    main.recolhido {
+      margin-left: 80px; /* Ajusta o espaço para caber apenas o botão */
+    }
+
+    /* --- OUTROS ESTILOS --- */
     h1 {
       font-size: 28px;
       color: #ffcc00;
@@ -101,18 +154,32 @@
 </head>
 <body>
 
-  <nav>
-    <h2>Categorias</h2>
+  <button id="toggle-nav">☰</button>
+
+  <nav id="navbar">
+    <center><h2>Categorias</h2></center>
     <ul id="menu"></ul>
   </nav>
 
-  <main>
+  <main id="main-content">
     <center><h1 id="categoria-titulo">Selecione uma categoria</h1></center>
     <video id="player" controls></video>
     <div id="lista"></div>
+    
   </main>
 
   <script>
+  // O JavaScript permanece o mesmo, continua funcionando perfeitamente
+  const nav = document.getElementById("navbar");
+  const main = document.getElementById("main-content");
+  const toggleBtn = document.getElementById("toggle-nav");
+
+  toggleBtn.addEventListener("click", () => {
+    nav.classList.toggle("recolhido");
+    main.classList.toggle("recolhido");
+  });
+
+
   let data = {};
   let origemCategorias = {}; // "animes" | "filmes" | "series" | "desenhos"
   let currentCategory = "";
